@@ -8,7 +8,8 @@ namespace VoskRecognizer
 {
     internal class Program
     {
-        public static string voskModlePath = @"C:\Programming\Models\vosk-model-ru-0.42";
+        public static string voskModelPath = @"E:\Vosk\Models\vosk-model-ru-0.42";
+        public static string voskSmallModelPath = @"E:\Vosk\Models\vosk-model-small-ru-0.22";
 
         public static string vrchatIp = "127.0.0.1";
         public static int vrchatPort = 9000;
@@ -19,7 +20,15 @@ namespace VoskRecognizer
 
         static void Main(string[] args)
         {
-            Model voskModel = new Model(voskModlePath);
+            Console.WriteLine("Select Full Vosk model? [Y/n] ([n] Default)");
+
+            string? input = Console.ReadLine() ?? "";
+
+            bool isYes = input.StartsWith("y", StringComparison.OrdinalIgnoreCase);
+
+            string voskModelPath = isYes ? Program.voskModelPath : Program.voskSmallModelPath;
+
+            Model voskModel = new Model(voskModelPath);
             Vosk.VoskRecognizer voskRecognizer = new Vosk.VoskRecognizer(voskModel, 16000);
 
             WaveInEvent waveIn = new WaveInEvent()
@@ -80,7 +89,7 @@ namespace VoskRecognizer
                     Console.SetCursorPosition(0, consoleRow);
 
                     string message = result.partial;
-                    string output = $"Speach: {message}";
+                    string output = $"Speach: {message}...";
 
                     Console.Write(output.PadRight(Console.WindowWidth - 1));
 
@@ -93,6 +102,7 @@ namespace VoskRecognizer
                 }
             }
         }
+
         public static void SendMessageOSC(string message)
         {
             using (var udpClient = new UdpClient())
